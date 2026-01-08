@@ -28,11 +28,16 @@ _LOGGER = logging.getLogger(__name__)
 REDIRECT_URI = "com.panasonic.jp.kitchenpocket.auth0://auth.digital.panasonic.com/android/com.panasonic.jp.kitchenpocket/callback"
 SCOPE = "openid kitchenpocket.service smartrf_prd.control eatpick.service offline_access"
 
-STEP_CALLBACK_DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required("callback_url"): str,
-    }
-)
+
+def get_callback_schema(login_url: str = "") -> vol.Schema:
+    """Get callback schema with login URL in description."""
+    # Home Assistant doesn't support description in vol.Required directly
+    # We'll show it in the step description instead
+    return vol.Schema(
+        {
+            vol.Required("callback_url"): str,
+        }
+    )
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -130,7 +135,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step - generate login URL."""
+        """Handle the initial step - generate login URL and show callback form."""
         # Generate PKCE parameters
         code_verifier, code_challenge, state, nonce = self._generate_pkce()
 
@@ -145,7 +150,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Store login URL in context
         self.context["login_url"] = login_url
 
-        # Move to callback step
+        # Move to callback step (which will show the form with login URL)
         return await self.async_step_callback()
 
     async def async_step_callback(
@@ -158,9 +163,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         code_verifier = self.context.get("code_verifier", "")
 
         if user_input is None:
+            # Show form with login URL in description
             return self.async_show_form(
                 step_id="callback",
-                data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                data_schema=get_callback_schema(login_url),
                 description_placeholders={
                     "login_url": login_url,
                 },
@@ -173,7 +179,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "callback_url_required"
             return self.async_show_form(
                 step_id="callback",
-                data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                data_schema=get_callback_schema(login_url),
                 errors=errors,
                 description_placeholders={
                     "login_url": login_url,
@@ -186,7 +192,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "invalid_callback_url"
             return self.async_show_form(
                 step_id="callback",
-                data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                data_schema=get_callback_schema(login_url),
                 errors=errors,
                 description_placeholders={
                     "login_url": login_url,
@@ -203,7 +209,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "token_exchange_failed"
                 return self.async_show_form(
                     step_id="callback",
-                    data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                    data_schema=get_callback_schema(login_url),
                     errors=errors,
                     description_placeholders={
                         "login_url": login_url,
@@ -217,7 +223,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "no_access_token"
                 return self.async_show_form(
                     step_id="callback",
-                    data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                    data_schema=get_callback_schema(login_url),
                     errors=errors,
                     description_placeholders={
                         "login_url": login_url,
@@ -232,7 +238,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_token"
                 return self.async_show_form(
                     step_id="callback",
-                    data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                    data_schema=get_callback_schema(login_url),
                     errors=errors,
                     description_placeholders={
                         "login_url": login_url,
@@ -251,7 +257,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "no_fridge_found"
                 return self.async_show_form(
                     step_id="callback",
-                    data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                    data_schema=get_callback_schema(login_url),
                     errors=errors,
                     description_placeholders={
                         "login_url": login_url,
@@ -285,7 +291,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "unknown"
             return self.async_show_form(
                 step_id="callback",
-                data_schema=STEP_CALLBACK_DATA_SCHEMA,
+                data_schema=get_callback_schema(login_url),
                 errors=errors,
                 description_placeholders={
                     "login_url": login_url,
