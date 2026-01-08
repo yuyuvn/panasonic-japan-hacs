@@ -160,10 +160,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         login_url = self.context.get("login_url", "")
         
         if user_input is None:
-            # Show form with just a continue button and the login URL displayed
+            # Show form with login URL in description
+            # Use a simple schema with a dummy field to ensure form shows
             return self.async_show_form(
                 step_id="login_url",
-                data_schema=vol.Schema({}),
+                data_schema=vol.Schema(
+                    {
+                        vol.Optional("_continue"): str,  # Hidden field to ensure form renders
+                    }
+                ),
                 description_placeholders={
                     "login_url": login_url,
                 },

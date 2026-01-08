@@ -3,7 +3,7 @@
     "step": {
       "login_url": {
         "title": "Panasonic Japan Authentication - Step 1",
-        "description": "**Step 1:** Click the login URL below to open the login page in your browser:\n\n**Login URL:**\n`{login_url}`\n\nAfter clicking the URL and logging in, click Continue below to proceed to the next step.",
+        "description": "**Step 1:** Click the login URL below to open the login page in your browser:\n\n**Login URL:**\n`{login_url}`\n\nAfter clicking the URL and logging in, click Submit below to proceed to the next step.",
         "data": {}
       },
       "callback": {
