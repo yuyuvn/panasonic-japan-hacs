@@ -16,7 +16,7 @@ Home Assistant custom component for Panasonic Japan kitchen appliances (fridge, 
 1. Open HACS in Home Assistant
 2. Go to "Integrations"
 3. Click the three dots menu (⋮) → "Custom repositories"
-4. Add repository: `https://github.com/yuyuvn/panasonic-japan`
+4. Add repository: `https://github.com/yuyuvn/panasonic-japan-hacs`
 5. Select category: "Integration"
 6. Click "Add"
 7. Search for "Panasonic Japan" and install
@@ -116,7 +116,7 @@ Where:
 ### Project Structure
 
 ```
-panasonic-japan/
+panasonic-japan-hacs/
 ├── custom_components/
 │   └── panasonic_japan/
 │       ├── __init__.py
