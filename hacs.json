@@ -1,0 +1,6 @@
+{
+  "name": "Panasonic Japan Kitchen Appliances",
+  "render_readme": true,
+  "domains": ["panasonic_japan"],
+  "iot_class": "Cloud Polling"
+}
