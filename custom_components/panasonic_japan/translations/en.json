@@ -1,0 +1,29 @@
+{
+    "config": {
+      "step": {
+        "callback": {
+          "title": "Panasonic Japan Authentication",
+          "description": "**Step 1:** Click the login URL below to open the login page in your browser:\n\n**Login URL:**\n`{login_url}`\n\n**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n**Step 3:** Copy the entire callback URL (it will look like `com.panasonic.jp.kitchenpocket.auth0://auth.digital.panasonic.com/android/com.panasonic.jp.kitchenpocket/callback?code=...&state=...`) and paste it in the field below.",
+          "data": {
+            "callback_url": "Callback URL"
+          },
+          "data_description": {
+            "callback_url": "Paste the complete callback URL you received after logging in"
+          }
+        }
+      },
+      "error": {
+        "callback_url_required": "Please provide the callback URL",
+        "invalid_callback_url": "Invalid callback URL format. Please check and try again.",
+        "token_exchange_failed": "Failed to exchange authorization code for tokens. The code may have expired. Please try again.",
+        "no_access_token": "No access token received from authentication server",
+        "invalid_token": "The access token is invalid or expired",
+        "no_fridge_found": "No fridge device found in your account",
+        "unknown": "Unexpected error occurred"
+      },
+      "abort": {
+        "already_configured": "This device is already configured"
+      }
+    }
+  }
+  
