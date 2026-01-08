@@ -1,14 +1,19 @@
 {
   "config": {
     "step": {
+      "login_url": {
+        "title": "Panasonic Japan Authentication - Step 1",
+        "description": "**Step 1:** Click the login URL below to open the login page in your browser:\n\n**Login URL:**\n`{login_url}`\n\nAfter clicking the URL and logging in, click Continue below to proceed to the next step.",
+        "data": {}
+      },
       "callback": {
-        "title": "Panasonic Japan Authentication",
-        "description": "**Step 1:** Click the login URL below to open the login page in your browser:\n\n**Login URL:**\n`{login_url}`\n\n**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n**Step 3:** Copy the entire callback URL (it will look like `com.panasonic.jp.kitchenpocket.auth0://auth.digital.panasonic.com/android/com.panasonic.jp.kitchenpocket/callback?code=...&state=...`) and paste it in the field below.",
+        "title": "Panasonic Japan Authentication - Step 2",
+        "description": "**Step 2:** After logging in, you were redirected to a callback URL.\n\nCopy the entire callback URL (it will look like `com.panasonic.jp.kitchenpocket.auth0://auth.digital.panasonic.com/android/com.panasonic.jp.kitchenpocket/callback?code=...&state=...`) and paste it in the field below.",
         "data": {
           "callback_url": "Callback URL"
         },
         "data_description": {
-          "callback_url": "**Login URL:** {login_url}\n\nClick the URL above to login, then paste the callback URL here after login."
+          "callback_url": "Paste the complete callback URL you received after logging in"
         }
       }
     },

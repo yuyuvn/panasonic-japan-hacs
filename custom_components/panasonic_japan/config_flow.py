@@ -150,7 +150,26 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Store login URL in context
         self.context["login_url"] = login_url
 
-        # Move to callback step (which will show the form with login URL)
+        # Show login URL step first
+        return await self.async_step_login_url()
+
+    async def async_step_login_url(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Show the login URL to the user."""
+        login_url = self.context.get("login_url", "")
+        
+        if user_input is None:
+            # Show form with just a continue button and the login URL displayed
+            return self.async_show_form(
+                step_id="login_url",
+                data_schema=vol.Schema({}),
+                description_placeholders={
+                    "login_url": login_url,
+                },
+            )
+        
+        # User clicked continue, move to callback step
         return await self.async_step_callback()
 
     async def async_step_callback(
