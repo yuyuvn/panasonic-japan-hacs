@@ -164,12 +164,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is None:
             # Show form with login URL in description
+            # Use description parameter directly to ensure it's shown
+            description = (
+                f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                f"**Login URL:**\n`{login_url}`\n\n"
+                f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                f"**Step 3:** Copy the entire callback URL (it will look like "
+                f"`com.panasonic.jp.kitchenpocket.auth0://auth.digital.panasonic.com/android/com.panasonic.jp.kitchenpocket/callback?code=...&state=...`) "
+                f"and paste it in the field below."
+            )
             return self.async_show_form(
                 step_id="callback",
                 data_schema=get_callback_schema(login_url),
-                description_placeholders={
-                    "login_url": login_url,
-                },
+                description=description,
                 errors=errors,
             )
 
@@ -177,26 +184,34 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if not callback_url:
             errors["base"] = "callback_url_required"
+            description = (
+                f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                f"**Login URL:**\n`{login_url}`\n\n"
+                f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+            )
             return self.async_show_form(
                 step_id="callback",
                 data_schema=get_callback_schema(login_url),
+                description=description,
                 errors=errors,
-                description_placeholders={
-                    "login_url": login_url,
-                },
             )
 
         # Extract code from callback URL
         code = self._extract_code_from_callback(callback_url)
         if not code:
             errors["base"] = "invalid_callback_url"
+            description = (
+                f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                f"**Login URL:**\n`{login_url}`\n\n"
+                f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+            )
             return self.async_show_form(
                 step_id="callback",
                 data_schema=get_callback_schema(login_url),
+                description=description,
                 errors=errors,
-                description_placeholders={
-                    "login_url": login_url,
-                },
             )
 
         # Exchange code for tokens
@@ -207,13 +222,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if not token_response:
                 errors["base"] = "token_exchange_failed"
+                description = (
+                    f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                    f"**Login URL:**\n`{login_url}`\n\n"
+                    f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                    f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+                )
                 return self.async_show_form(
                     step_id="callback",
                     data_schema=get_callback_schema(login_url),
+                    description=description,
                     errors=errors,
-                    description_placeholders={
-                        "login_url": login_url,
-                    },
                 )
 
             access_token = token_response.get("access_token")
@@ -221,13 +240,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if not access_token:
                 errors["base"] = "no_access_token"
+                description = (
+                    f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                    f"**Login URL:**\n`{login_url}`\n\n"
+                    f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                    f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+                )
                 return self.async_show_form(
                     step_id="callback",
                     data_schema=get_callback_schema(login_url),
+                    description=description,
                     errors=errors,
-                    description_placeholders={
-                        "login_url": login_url,
-                    },
                 )
 
             # Validate token by getting user info
@@ -236,13 +259,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if not user_info or not user_info.get("myAppliances"):
                 errors["base"] = "invalid_token"
+                description = (
+                    f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                    f"**Login URL:**\n`{login_url}`\n\n"
+                    f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                    f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+                )
                 return self.async_show_form(
                     step_id="callback",
                     data_schema=get_callback_schema(login_url),
+                    description=description,
                     errors=errors,
-                    description_placeholders={
-                        "login_url": login_url,
-                    },
                 )
 
             # Get first appliance (fridge)
@@ -255,13 +282,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if not fridge_appliance:
                 errors["base"] = "no_fridge_found"
+                description = (
+                    f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                    f"**Login URL:**\n`{login_url}`\n\n"
+                    f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                    f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+                )
                 return self.async_show_form(
                     step_id="callback",
                     data_schema=get_callback_schema(login_url),
+                    description=description,
                     errors=errors,
-                    description_placeholders={
-                        "login_url": login_url,
-                    },
                 )
 
             appliance_id = fridge_appliance["info"]["applianceId"]
@@ -289,13 +320,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as err:
             _LOGGER.exception("Unexpected exception: %s", err)
             errors["base"] = "unknown"
+            description = (
+                f"**Step 1:** Click the login URL below to open the login page in your browser:\n\n"
+                f"**Login URL:**\n`{login_url}`\n\n"
+                f"**Step 2:** After logging in with your Panasonic account, you'll be redirected to a callback URL.\n\n"
+                f"**Step 3:** Copy the entire callback URL and paste it in the field below."
+            )
             return self.async_show_form(
                 step_id="callback",
                 data_schema=get_callback_schema(login_url),
+                description=description,
                 errors=errors,
-                description_placeholders={
-                    "login_url": login_url,
-                },
             )
 
     async def async_step_import(self, import_info: dict[str, Any]) -> FlowResult:
