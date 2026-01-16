@@ -13,6 +13,7 @@ from .const import (
     AUTH0_AUDIENCE,
     AUTH0_CLIENT_ID,
     AUTH0_DOMAIN,
+    AUTH0_TOKEN_URL,
     KAPF_API_BASE_URL,
     YEN_PER_KWH,
 )
@@ -72,6 +73,36 @@ class PanasonicAPI:
 
         return quote(appliance_id, safe="")
 
+    def _make_request_with_retry(
+        self, method: str, url: str, **kwargs: Any
+    ) -> requests.Response:
+        """Make an API request with automatic token refresh on 401/403 errors."""
+        response = self._session.request(method, url, **kwargs)
+        
+        # If we get 401/403, try refreshing the token and retry once
+        if response.status_code in (401, 403):
+            _LOGGER.warning(
+                "Received %d error, attempting to refresh access token",
+                response.status_code,
+            )
+            try:
+                self.refresh_access_token()
+                # Retry the request with the new token
+                # Update Authorization header
+                if "headers" in kwargs:
+                    kwargs["headers"]["Authorization"] = f"Bearer {self._access_token}"
+                else:
+                    kwargs["headers"] = {"Authorization": f"Bearer {self._access_token}"}
+                
+                response = self._session.request(method, url, **kwargs)
+            except Exception as err:
+                _LOGGER.error("Failed to refresh token and retry: %s", err)
+                raise PanasonicAPIError(
+                    f"Authentication failed: {response.status_code} {response.text}"
+                ) from err
+        
+        return response
+
     def get_user_info(self) -> dict[str, Any]:
         """Get user information and list of appliances."""
         url = f"{KAPF_API_BASE_URL}/user/info"
@@ -79,11 +110,7 @@ class PanasonicAPI:
         headers["X-API-Key"] = API_KEY
         headers["User-Agent"] = "KitchenPocketA/5.1.0"
 
-        response = self._session.get(url, headers=headers, timeout=30)
-        if response.status_code in (401, 403):
-            raise PanasonicAPIError(
-                f"Authentication failed: {response.status_code} {response.text}"
-            )
+        response = self._make_request_with_retry("GET", url, headers=headers, timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -93,8 +120,8 @@ class PanasonicAPI:
         url = f"{API_BASE_URL}/devices/{appliance_id_encoded}/status"
         params = {"usages": 1}
 
-        response = self._session.get(
-            url, headers=self._get_headers(), params=params, timeout=30
+        response = self._make_request_with_retry(
+            "GET", url, headers=self._get_headers(), params=params, timeout=30
         )
         response.raise_for_status()
         return response.json()
@@ -104,11 +131,9 @@ class PanasonicAPI:
         appliance_id_encoded = self._url_encode_appliance_id(appliance_id)
         url = f"{API_BASE_URL}/devices/{appliance_id_encoded}/reduction"
 
-        response = self._session.get(url, headers=self._get_headers(), timeout=30)
-        if response.status_code in (401, 403):
-            raise PanasonicAPIError(
-                f"Authentication failed: {response.status_code} {response.text}"
-            )
+        response = self._make_request_with_retry(
+            "GET", url, headers=self._get_headers(), timeout=30
+        )
         response.raise_for_status()
         return response.json()
 
@@ -122,11 +147,9 @@ class PanasonicAPI:
         appliance_id_encoded = self._url_encode_appliance_id(appliance_id)
         url = f"{API_BASE_URL}/products/{appliance_id_encoded}/functions"
 
-        response = self._session.get(url, headers=self._get_headers(), timeout=30)
-        if response.status_code in (401, 403):
-            raise PanasonicAPIError(
-                f"Authentication failed: {response.status_code} {response.text}"
-            )
+        response = self._make_request_with_retry(
+            "GET", url, headers=self._get_headers(), timeout=30
+        )
         response.raise_for_status()
         return response.json()
 

@@ -2,12 +2,10 @@
 from __future__ import annotations
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -26,7 +24,6 @@ async def async_setup_entry(
     coordinator: PanasonicDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     sensors = [
-        PanasonicElectricityUsageSensor(coordinator),
         PanasonicCostReductionSensor(coordinator),
         PanasonicOperationModeSensor(coordinator),
         PanasonicFirmwareSensor(coordinator),
@@ -56,22 +53,6 @@ class PanasonicSensor(CoordinatorEntity[PanasonicDataUpdateCoordinator], SensorE
             ATTR_APPLIANCE_ID: data.get("appliance_id", ""),
             ATTR_PRODUCT_CODE: data.get("product_code", ""),
         }
-
-
-class PanasonicElectricityUsageSensor(PanasonicSensor):
-    """Sensor for electricity usage in kWh/month."""
-
-    _attr_name = "Electricity Usage"
-    _attr_unique_id = "electricity_usage"
-    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    _attr_device_class = SensorDeviceClass.ENERGY
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_suggested_display_precision = 2
-
-    @property
-    def native_value(self) -> float:
-        """Return the electricity usage in kWh/month."""
-        return self.coordinator.data.get("electricity_usage_kwh", 0.0)
 
 
 class PanasonicCostReductionSensor(PanasonicSensor):

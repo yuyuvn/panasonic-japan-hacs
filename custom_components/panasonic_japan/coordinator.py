@@ -45,14 +45,9 @@ class PanasonicDataUpdateCoordinator(DataUpdateCoordinator):
                 self.api.get_electricity_reduction, self.appliance_id
             )
 
-            # Calculate electricity usage
-            current_reduction = electricity_data.get("current_reduction_amount", 0)
-            electricity_usage = self.api.calculate_electricity_usage(current_reduction)
-
             return {
                 "device_status": device_status,
                 "electricity": electricity_data,
-                "electricity_usage_kwh": electricity_usage,
                 "appliance_id": self.appliance_id,
                 "product_code": self.product_code,
             }
@@ -82,17 +77,9 @@ class PanasonicDataUpdateCoordinator(DataUpdateCoordinator):
                             self.api.get_electricity_reduction, self.appliance_id
                         )
 
-                        current_reduction = electricity_data.get(
-                            "current_reduction_amount", 0
-                        )
-                        electricity_usage = self.api.calculate_electricity_usage(
-                            current_reduction
-                        )
-
                         return {
                             "device_status": device_status,
                             "electricity": electricity_data,
-                            "electricity_usage_kwh": electricity_usage,
                             "appliance_id": self.appliance_id,
                             "product_code": self.product_code,
                         }
